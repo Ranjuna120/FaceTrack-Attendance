@@ -2,6 +2,7 @@
 # Uses Tkinter for GUI
 
 import tkinter as tk
+from tkinter import messagebox
 from face_recognition_module import FaceRecognitionModule
 from attendance_manager import AttendanceManager
 
@@ -18,14 +19,22 @@ def main():
         name = name_entry.get()
         if name:
             face_module.register_face(name)
+            messagebox.showinfo("Success", f"Face registered for {name}")
+        else:
+            messagebox.showwarning("Input Error", "Please enter a name to register.")
 
     def start_attendance():
         recognized = face_module.recognize_faces()
-        for name in recognized:
-            attendance_manager.mark_attendance(name)
+        if recognized:
+            for name in recognized:
+                attendance_manager.mark_attendance(name)
+            messagebox.showinfo("Attendance", f"Attendance marked for: {', '.join(recognized)}")
+        else:
+            messagebox.showinfo("Attendance", "No faces recognized.")
 
     def export_data():
         attendance_manager.export_to_excel()
+        messagebox.showinfo("Export", "Attendance exported to Excel.")
 
     tk.Label(root, text="Name for Registration:").pack()
     name_entry = tk.Entry(root)
