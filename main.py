@@ -27,11 +27,14 @@ def main():
         name = name_entry.get()
         if name:
             try:
-                face_module.register_face(name)
-                if name not in registered_names:
-                    registered_names.append(name)
-                    update_listbox()
-                messagebox.showinfo("Success", f"Face registered for {name}")
+                success, msg = face_module.register_face(name)
+                if success:
+                    if name not in registered_names:
+                        registered_names.append(name)
+                        update_listbox()
+                    messagebox.showinfo("Success", msg)
+                else:
+                    messagebox.showwarning("Registration Failed", msg)
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to register face: {e}")
         else:
