@@ -15,8 +15,14 @@ class AttendanceManager:
         from datetime import datetime
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if not ((self.df["Name"] == name) & (self.df["Time"].str[:10] == now[:10])).any():
-            self.df = pd.concat([self.df, pd.DataFrame([[name, now]], columns=["Name", "Time"])], ignore_index=True)
+            self.df = pd.concat([
+                self.df,
+                pd.DataFrame([[name, now]], columns=["Name", "Time"])
+            ], ignore_index=True)
             self.df.to_csv(self.attendance_file, index=False)
+            # Also write to Excel automatically
+            excel_file = os.path.join(self.data_dir, "attendance.xlsx")
+            self.df.to_excel(excel_file, index=False)
             print(f"Attendance marked for {name}")
         else:
             print(f"Attendance already marked for {name} today.")
