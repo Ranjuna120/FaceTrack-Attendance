@@ -11,13 +11,35 @@ from attendance_manager import AttendanceManager
 # ...existing code...
 
 def main():
+
     root = tk.Tk()
     root.title("Face Recognition Attendance System")
-    root.configure(bg="#f0f4f8")
-    root.geometry("420x540")
+    root.configure(bg="#e9eef6")
+    root.geometry("600x600")
+    root.minsize(480, 540)
 
-    main_frame = tk.Frame(root, bg="#ffffff", bd=2, relief=tk.RIDGE)
-    main_frame.pack(padx=20, pady=20, fill=tk.BOTH, expand=True)
+
+    # Add shadow effect
+    shadow = tk.Frame(root, bg="#cfd8dc", bd=0, highlightthickness=0)
+    shadow.place(relx=0.5, rely=0.5, anchor="center", width=528, height=568)
+
+    # Canvas for scrollable main content
+    canvas = tk.Canvas(root, bg="#e9eef6", highlightthickness=0, bd=0, width=520, height=560)
+    canvas.place(relx=0.5, rely=0.5, anchor="center")
+    scrollbar = tk.Scrollbar(root, orient="vertical", command=canvas.yview)
+    scrollbar.place(relx=0.97, rely=0.5, anchor="e", height=560)
+    main_frame = tk.Frame(canvas, bg="#ffffff", bd=0, highlightthickness=0)
+    main_frame_id = canvas.create_window((0, 0), window=main_frame, anchor="nw", width=520)
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    def on_frame_configure(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+
+    main_frame.bind("<Configure>", on_frame_configure)
+    # Enable mousewheel scrolling
+    def _on_mousewheel(event):
+        canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+    canvas.bind_all("<MouseWheel>", _on_mousewheel)
 
     # Logo (if logo.png exists)
     try:
@@ -25,11 +47,11 @@ def main():
         logo_path = os.path.join(os.path.dirname(__file__), 'logo.png')
         if os.path.exists(logo_path):
             logo_img = Image.open(logo_path)
-            logo_img = logo_img.resize((80, 80))
+            logo_img = logo_img.resize((90, 90))
             logo_photo = ImageTk.PhotoImage(logo_img)
             logo_label = tk.Label(main_frame, image=logo_photo, bg="#ffffff")
             logo_label.image = logo_photo  # Keep a reference
-            logo_label.pack(pady=(10, 0))
+            logo_label.pack(pady=(18, 0))
     except Exception as e:
         print(f"Logo not loaded: {e}")
 
@@ -113,12 +135,13 @@ def main():
 
 
     # Title label
-    title_label = tk.Label(main_frame, text="Face Recognition Attendance System", font=("Segoe UI", 15, "bold"), bg="#ffffff", fg="#2d3e50")
-    title_label.pack(pady=(10, 10))
+
+    title_label = tk.Label(main_frame, text="Face Recognition Attendance System", font=("Segoe UI", 18, "bold"), bg="#ffffff", fg="#263238")
+    title_label.pack(pady=(8, 2))
 
     # Date and time label
-    datetime_label = tk.Label(main_frame, text="", font=("Segoe UI", 10), bg="#ffffff", fg="#4a4a4a")
-    datetime_label.pack(pady=(0, 10))
+    datetime_label = tk.Label(main_frame, text="", font=("Segoe UI", 11), bg="#ffffff", fg="#607d8b")
+    datetime_label.pack(pady=(0, 18))
 
     def update_datetime():
         import datetime
@@ -128,28 +151,33 @@ def main():
     update_datetime()
 
     # Name entry
-    name_label = tk.Label(main_frame, text="Name for Registration:", font=("Segoe UI", 11), bg="#ffffff", anchor="w")
-    name_label.pack(fill=tk.X, padx=20)
-    name_entry = tk.Entry(main_frame, font=("Segoe UI", 11), bd=2, relief=tk.GROOVE)
-    name_entry.pack(padx=20, pady=(0, 10), fill=tk.X)
-    register_btn = tk.Button(main_frame, text="Register Face", command=register_face, font=("Segoe UI", 10, "bold"), bg="#4caf50", fg="#fff", activebackground="#388e3c", bd=0, height=1)
-    register_btn.pack(padx=20, pady=(0, 15), fill=tk.X)
+
+    name_label = tk.Label(main_frame, text="Name for Registration:", font=("Segoe UI", 12), bg="#ffffff", anchor="w")
+    name_label.pack(fill=tk.X, padx=24)
+    name_entry = tk.Entry(main_frame, font=("Segoe UI", 12), bd=2, relief=tk.GROOVE)
+    name_entry.pack(padx=24, pady=(0, 12), fill=tk.X)
+    register_btn = tk.Button(main_frame, text="Register Face", command=register_face, font=("Segoe UI", 11, "bold"), bg="#43a047", fg="#fff", activebackground="#388e3c", bd=0, height=2, cursor="hand2")
+    register_btn.pack(padx=24, pady=(0, 18), fill=tk.X)
 
     # Listbox for registered names
-    reg_label = tk.Label(main_frame, text="Registered Names:", font=("Segoe UI", 11), bg="#ffffff", anchor="w")
-    reg_label.pack(fill=tk.X, padx=20)
-    listbox = tk.Listbox(main_frame, height=5, font=("Segoe UI", 10), bd=2, relief=tk.GROOVE, selectbackground="#90caf9")
-    listbox.pack(padx=20, pady=(0, 5), fill=tk.X)
-    delete_btn = tk.Button(main_frame, text="Delete Selected Face", command=delete_face, font=("Segoe UI", 10, "bold"), bg="#e53935", fg="#fff", activebackground="#b71c1c", bd=0, height=1)
-    delete_btn.pack(padx=20, pady=(0, 15), fill=tk.X)
+
+    reg_label = tk.Label(main_frame, text="Registered Names:", font=("Segoe UI", 12), bg="#ffffff", anchor="w")
+    reg_label.pack(fill=tk.X, padx=24)
+    listbox_frame = tk.Frame(main_frame, bg="#eceff1", bd=1, relief=tk.FLAT)
+    listbox_frame.pack(padx=24, pady=(0, 8), fill=tk.X)
+    listbox = tk.Listbox(listbox_frame, height=5, font=("Segoe UI", 11), bd=0, relief=tk.FLAT, selectbackground="#90caf9", highlightthickness=0)
+    listbox.pack(padx=2, pady=2, fill=tk.BOTH, expand=True)
+    delete_btn = tk.Button(main_frame, text="Delete Selected Face", command=delete_face, font=("Segoe UI", 11, "bold"), bg="#e53935", fg="#fff", activebackground="#b71c1c", bd=0, height=2, cursor="hand2")
+    delete_btn.pack(padx=24, pady=(0, 12), fill=tk.X)
 
     # Attendance and export buttons
-    start_btn = tk.Button(main_frame, text="Start Attendance", command=start_attendance, font=("Segoe UI", 10, "bold"), bg="#1976d2", fg="#fff", activebackground="#0d47a1", bd=0, height=1)
-    start_btn.pack(padx=20, pady=(0, 10), fill=tk.X)
-    export_btn = tk.Button(main_frame, text="Export to Excel", command=export_data, font=("Segoe UI", 10, "bold"), bg="#ffb300", fg="#fff", activebackground="#ff6f00", bd=0, height=1)
-    export_btn.pack(padx=20, pady=(0, 10), fill=tk.X)
-    clear_btn = tk.Button(main_frame, text="Clear All Registered Faces", command=clear_all_faces, font=("Segoe UI", 10, "bold"), bg="#fff", fg="#e53935", activebackground="#ffcdd2", bd=1, height=1)
-    clear_btn.pack(padx=20, pady=(0, 10), fill=tk.X)
+
+    start_btn = tk.Button(main_frame, text="Start Attendance", command=start_attendance, font=("Segoe UI", 11, "bold"), bg="#1976d2", fg="#fff", activebackground="#1565c0", bd=0, height=2, cursor="hand2")
+    start_btn.pack(padx=24, pady=(0, 8), fill=tk.X)
+    export_btn = tk.Button(main_frame, text="Export to Excel", command=export_data, font=("Segoe UI", 11, "bold"), bg="#ffb300", fg="#fff", activebackground="#ff6f00", bd=0, height=2, cursor="hand2")
+    export_btn.pack(padx=24, pady=(0, 8), fill=tk.X)
+    clear_btn = tk.Button(main_frame, text="Clear All Registered Faces", command=clear_all_faces, font=("Segoe UI", 11, "bold"), bg="#fff", fg="#e53935", activebackground="#ffcdd2", bd=1, height=2, cursor="hand2")
+    clear_btn.pack(padx=24, pady=(0, 8), fill=tk.X)
 
     root.mainloop()
 
