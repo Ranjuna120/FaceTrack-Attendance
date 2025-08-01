@@ -1,6 +1,8 @@
 # Entry point for Face Recognition Attendance System
 # Uses Tkinter for GUI
 
+
+import os
 import tkinter as tk
 from tkinter import messagebox
 from face_recognition_module import FaceRecognitionModule
@@ -9,7 +11,27 @@ from attendance_manager import AttendanceManager
 # ...existing code...
 
 def main():
-    import os
+    root = tk.Tk()
+    root.title("Face Recognition Attendance System")
+    root.configure(bg="#f0f4f8")
+    root.geometry("420x540")
+
+    main_frame = tk.Frame(root, bg="#ffffff", bd=2, relief=tk.RIDGE)
+    main_frame.pack(padx=20, pady=20, fill=tk.BOTH, expand=True)
+
+    # Logo (if logo.png exists)
+    try:
+        from PIL import Image, ImageTk
+        logo_path = os.path.join(os.path.dirname(__file__), 'logo.png')
+        if os.path.exists(logo_path):
+            logo_img = Image.open(logo_path)
+            logo_img = logo_img.resize((80, 80))
+            logo_photo = ImageTk.PhotoImage(logo_img)
+            logo_label = tk.Label(main_frame, image=logo_photo, bg="#ffffff")
+            logo_label.image = logo_photo  # Keep a reference
+            logo_label.pack(pady=(10, 0))
+    except Exception as e:
+        print(f"Logo not loaded: {e}")
 
     def clear_all_faces():
         if messagebox.askyesno("Clear All Faces", "Are you sure you want to delete all registered faces? This cannot be undone."):
@@ -25,8 +47,6 @@ def main():
             registered_names.clear()
             update_listbox()
             messagebox.showinfo("Clear All Faces", f"Deleted {removed} face data file(s).")
-    root = tk.Tk()
-    root.title("Face Recognition Attendance System")
 
     face_module = FaceRecognitionModule()
     attendance_manager = AttendanceManager()
@@ -92,9 +112,13 @@ def main():
             messagebox.showwarning("Delete", "Select a name to delete.")
 
 
+    # Title label
+    title_label = tk.Label(main_frame, text="Face Recognition Attendance System", font=("Segoe UI", 15, "bold"), bg="#ffffff", fg="#2d3e50")
+    title_label.pack(pady=(10, 10))
+
     # Date and time label
-    datetime_label = tk.Label(root, text="", font=("Arial", 10))
-    datetime_label.pack(pady=2)
+    datetime_label = tk.Label(main_frame, text="", font=("Segoe UI", 10), bg="#ffffff", fg="#4a4a4a")
+    datetime_label.pack(pady=(0, 10))
 
     def update_datetime():
         import datetime
@@ -103,21 +127,29 @@ def main():
         root.after(1000, update_datetime)
     update_datetime()
 
-    tk.Label(root, text="Name for Registration:").pack()
-    name_entry = tk.Entry(root)
-    name_entry.pack()
-    tk.Button(root, text="Register Face", command=register_face).pack(pady=5)
+    # Name entry
+    name_label = tk.Label(main_frame, text="Name for Registration:", font=("Segoe UI", 11), bg="#ffffff", anchor="w")
+    name_label.pack(fill=tk.X, padx=20)
+    name_entry = tk.Entry(main_frame, font=("Segoe UI", 11), bd=2, relief=tk.GROOVE)
+    name_entry.pack(padx=20, pady=(0, 10), fill=tk.X)
+    register_btn = tk.Button(main_frame, text="Register Face", command=register_face, font=("Segoe UI", 10, "bold"), bg="#4caf50", fg="#fff", activebackground="#388e3c", bd=0, height=1)
+    register_btn.pack(padx=20, pady=(0, 15), fill=tk.X)
 
     # Listbox for registered names
-    tk.Label(root, text="Registered Names:").pack()
-    listbox = tk.Listbox(root, height=5)
-    listbox.pack(pady=2)
-    tk.Button(root, text="Delete Selected Face", command=delete_face).pack(pady=2)
+    reg_label = tk.Label(main_frame, text="Registered Names:", font=("Segoe UI", 11), bg="#ffffff", anchor="w")
+    reg_label.pack(fill=tk.X, padx=20)
+    listbox = tk.Listbox(main_frame, height=5, font=("Segoe UI", 10), bd=2, relief=tk.GROOVE, selectbackground="#90caf9")
+    listbox.pack(padx=20, pady=(0, 5), fill=tk.X)
+    delete_btn = tk.Button(main_frame, text="Delete Selected Face", command=delete_face, font=("Segoe UI", 10, "bold"), bg="#e53935", fg="#fff", activebackground="#b71c1c", bd=0, height=1)
+    delete_btn.pack(padx=20, pady=(0, 15), fill=tk.X)
 
-
-    tk.Button(root, text="Start Attendance", command=start_attendance).pack(pady=5)
-    tk.Button(root, text="Export to Excel", command=export_data).pack(pady=5)
-    tk.Button(root, text="Clear All Registered Faces", command=clear_all_faces, fg="red").pack(pady=5)
+    # Attendance and export buttons
+    start_btn = tk.Button(main_frame, text="Start Attendance", command=start_attendance, font=("Segoe UI", 10, "bold"), bg="#1976d2", fg="#fff", activebackground="#0d47a1", bd=0, height=1)
+    start_btn.pack(padx=20, pady=(0, 10), fill=tk.X)
+    export_btn = tk.Button(main_frame, text="Export to Excel", command=export_data, font=("Segoe UI", 10, "bold"), bg="#ffb300", fg="#fff", activebackground="#ff6f00", bd=0, height=1)
+    export_btn.pack(padx=20, pady=(0, 10), fill=tk.X)
+    clear_btn = tk.Button(main_frame, text="Clear All Registered Faces", command=clear_all_faces, font=("Segoe UI", 10, "bold"), bg="#fff", fg="#e53935", activebackground="#ffcdd2", bd=1, height=1)
+    clear_btn.pack(padx=20, pady=(0, 10), fill=tk.X)
 
     root.mainloop()
 
