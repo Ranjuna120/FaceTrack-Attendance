@@ -19,41 +19,61 @@ class FaceRecognitionModule:
         for file in os.listdir(self.data_dir):
             if file.endswith(".npy"):
                 name = file[:-4]
-                encoding = np.load(os.path.join(self.data_dir, file))
-                # Validate encoding shape
-                if encoding.shape == (128,):
-                    self.known_face_encodings.append(encoding)
-                    self.known_face_names.append(name)
-                else:
-                    print(f"Warning: Encoding for {name} has invalid shape {encoding.shape}, skipping.")
+                file_path = os.path.join(self.data_dir, file)
+                try:
+                    encoding = np.load(file_path)
+                    # Validate encoding shape
+                    if encoding.shape == (128,):
+                        self.known_face_encodings.append(encoding)
+                        self.known_face_names.append(name)
+                    else:
+                        print(f"Warning: Encoding for {name} has invalid shape {encoding.shape}, deleting file.")
+                        os.remove(file_path)
+                except Exception as e:
+                    print(f"Warning: Could not load encoding for {name}: {e}. Deleting file.")
+                    os.remove(file_path)
 
     def register_face(self, name):
         cap = cv2.VideoCapture(0)
-        print("Press 's' to capture face for registration.")
+        if not cap.isOpened():
+            return False, "Failed to access camera."
+        cv2.namedWindow("Face Registration Preview")
+        captured = False
+        frame = None
         while True:
             ret, frame = cap.read()
             if not ret:
-                print("Failed to capture image from camera.")
+                cap.release()
+                cv2.destroyAllWindows()
+                return False, "Failed to capture image from camera."
+            preview = frame.copy()
+            cv2.putText(preview, "Press SPACE to capture, ESC to cancel", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,255,0), 2)
+            cv2.imshow("Face Registration Preview", preview)
+            key = cv2.waitKey(1) & 0xFF
+            if key == 27:  # ESC
+                cap.release()
+                cv2.destroyAllWindows()
+                return False, "Registration cancelled."
+            elif key == 32:  # SPACE
+                captured = True
                 break
-            cv2.imshow("Register Face", frame)
-            if cv2.waitKey(1) & 0xFF == ord('s'):
-                rgb_frame = frame[:, :, ::-1]
-                face_locations = face_recognition.face_locations(rgb_frame)
-                if len(face_locations) == 0:
-                    print("No face detected. Try again.")
-                elif len(face_locations) > 1:
-                    print("Multiple faces detected. Please ensure only one face is visible.")
-                else:
-                    face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
-                    if face_encodings and face_encodings[0].shape == (128,):
-                        np.save(os.path.join(self.data_dir, f"{name}.npy"), face_encodings[0])
-                        print(f"Face registered for {name}")
-                        break
-                    else:
-                        print("Face detected but encoding failed or invalid shape. Try again.")
         cap.release()
         cv2.destroyAllWindows()
-        self.load_known_faces()
+        if not captured or frame is None:
+            return False, "No image captured."
+        rgb_frame = frame[:, :, ::-1]
+        face_locations = face_recognition.face_locations(rgb_frame)
+        if len(face_locations) == 0:
+            return False, "No face detected. Please try again."
+        elif len(face_locations) > 1:
+            return False, "Multiple faces detected. Please ensure only one face is visible."
+        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
+        if face_encodings and face_encodings[0].shape == (128,):
+            np.save(os.path.join(self.data_dir, f"{name}.npy"), face_encodings[0])
+            self.load_known_faces()
+            return True, f"Face registered for {name}"
+        else:
+            return False, "Face detected but encoding failed or invalid shape. Try again."
 
     def recognize_faces(self):
         cap = cv2.VideoCapture(0)
