@@ -9,6 +9,22 @@ from attendance_manager import AttendanceManager
 # ...existing code...
 
 def main():
+    import os
+
+    def clear_all_faces():
+        if messagebox.askyesno("Clear All Faces", "Are you sure you want to delete all registered faces? This cannot be undone."):
+            data_dir = getattr(face_module, 'data_dir', 'data')
+            removed = 0
+            for file in os.listdir(data_dir):
+                if file.endswith('.npy'):
+                    try:
+                        os.remove(os.path.join(data_dir, file))
+                        removed += 1
+                    except Exception as e:
+                        print(f"Failed to delete {file}: {e}")
+            registered_names.clear()
+            update_listbox()
+            messagebox.showinfo("Clear All Faces", f"Deleted {removed} face data file(s).")
     root = tk.Tk()
     root.title("Face Recognition Attendance System")
 
@@ -98,8 +114,10 @@ def main():
     listbox.pack(pady=2)
     tk.Button(root, text="Delete Selected Face", command=delete_face).pack(pady=2)
 
+
     tk.Button(root, text="Start Attendance", command=start_attendance).pack(pady=5)
     tk.Button(root, text="Export to Excel", command=export_data).pack(pady=5)
+    tk.Button(root, text="Clear All Registered Faces", command=clear_all_faces, fg="red").pack(pady=5)
 
     root.mainloop()
 
