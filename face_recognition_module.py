@@ -5,6 +5,18 @@ import os
 import numpy as np
 
 class FaceRecognitionModule:
+    def get_registered_names(self):
+        """Return a list of registered names (from .npy files in data_dir)."""
+        return [file[:-4] for file in os.listdir(self.data_dir) if file.endswith('.npy')]
+
+    def delete_face(self, name):
+        """Delete the .npy file for a registered face."""
+        file_path = os.path.join(self.data_dir, f"{name}.npy")
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            self.load_known_faces()
+            return True
+        return False
     def __init__(self, data_dir="data"):
         self.data_dir = data_dir
         if not os.path.exists(self.data_dir):
