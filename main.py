@@ -74,9 +74,11 @@ def main():
     attendance_manager = AttendanceManager()
 
     # List to store registered names
-    registered_names = []
+    registered_names = face_module.get_registered_names()
 
     def update_listbox():
+        registered_names.clear()
+        registered_names.extend(face_module.get_registered_names())
         listbox.delete(0, tk.END)
         for n in registered_names:
             listbox.insert(tk.END, n)
@@ -87,9 +89,7 @@ def main():
             try:
                 success, msg = face_module.register_face(name)
                 if success:
-                    if name not in registered_names:
-                        registered_names.append(name)
-                        update_listbox()
+                    update_listbox()
                     messagebox.showinfo("Success", msg)
                 else:
                     messagebox.showwarning("Registration Failed", msg)
@@ -122,12 +122,13 @@ def main():
         selected = listbox.curselection()
         if selected:
             name = listbox.get(selected[0])
-            # You should implement delete_face in FaceRecognitionModule for this to work
             try:
-                face_module.delete_face(name)
-                registered_names.remove(name)
-                update_listbox()
-                messagebox.showinfo("Delete", f"Deleted face data for {name}")
+                deleted = face_module.delete_face(name)
+                if deleted:
+                    update_listbox()
+                    messagebox.showinfo("Delete", f"Deleted face data for {name}")
+                else:
+                    messagebox.showwarning("Delete", f"No face data found for {name}")
             except Exception as e:
                 messagebox.showerror("Delete Error", f"Failed to delete: {e}")
         else:
