@@ -1,0 +1,11 @@
+
+ATTENDANCE CHART (Text Version)
+==============================
+
+Attendance by Person:
+TestUser        |# (1)
+rivith          |# (1)
+ranjuna         |# (1)
+silva           |# (1)
+TestUser2       |# (1)
+kamal           |# (1)
