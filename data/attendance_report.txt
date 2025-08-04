@@ -1,0 +1,26 @@
+
+ATTENDANCE REPORT
+================
+Generated on: 2025-08-05 01:09:35
+
+SUMMARY (Last 30 days):
+- Total Attendances: 6
+- Unique People: 6
+- Daily Average: 0.2
+- Most Regular: TestUser
+
+ATTENDANCE BY PERSON:
+- TestUser: 1 days
+- rivith: 1 days
+- ranjuna: 1 days
+- silva: 1 days
+- TestUser2: 1 days
+- kamal: 1 days
+
+RECENT ATTENDANCE:
+- TestUser: 2025-08-05 00:15:55
+- rivith: 2025-08-05 00:35:15
+- ranjuna: 2025-08-05 00:38:45
+- silva: 2025-08-05 00:53:19
+- TestUser2: 2025-08-05 00:58:13
+- kamal: 2025-08-05 01:01:55
