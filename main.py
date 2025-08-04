@@ -5,7 +5,19 @@
 import os
 import tkinter as tk
 from tkinter import messagebox
-from face_recognition_module import FaceRecognitionModule
+
+# Try to import compatible face recognition module first
+try:
+    from face_recognition_module_compatible import FaceRecognitionModuleCompatible as FaceRecognitionModule
+    print("Using compatible face recognition module")
+except ImportError:
+    try:
+        from face_recognition_module import FaceRecognitionModule
+        print("Using original face recognition module")
+    except ImportError as e:
+        print(f"Failed to import face recognition module: {e}")
+        exit(1)
+
 from attendance_manager import AttendanceManager
 
 # ...existing code...
